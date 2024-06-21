@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quản Lý Điểm Danh và Liên Kết</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .status-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+
+        .status-button.not-completed {
+            background-color: #e74c3c;
+        }
+
+        .status-button.completed {
+            background-color: #2ecc71;
+        }
+
+        .status-button:hover {
+            opacity: 0.9;
+        }
+
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin-right: 5px;
+        }
+
+        .action-button.edit {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .action-button.delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .action-button.absent {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .action-button.clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .action-button:hover {
+            opacity: 0.9;
+        }
+
+        .centered-actions {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button[onclick="addMember()"],
+        button[onclick="changeDate()"],
+        button[onclick="addLink()"] {
+            background-color: #3498db;
+            color: white;
+            margin-right: 10px;
+        }
+
+        button[onclick="changeDate()"] {
+            background-color: #e67e22;
+        }
+
+        button[onclick="addLink()"] {
+            background-color: #2ecc71;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .centered-actions {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.add-note {
+            background-color: #3498db;
+            color: white;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        form label {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        form input, form textarea {
+            margin-right: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+
+        form button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            opacity: 0.9;
+        }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<h2>Quản Lý Điểm Danh - <span id="attendanceDate">14/06</span></h2>
+
+<button onclick="addMember()">Thêm Thành Viên</button>
+<button onclick="changeDate()">Đổi Ngày Điểm Danh</button>
+
+<table id="attendanceTable">
+    <thead>
+        <tr>
+            <th>Nhóm</th>
+            <th>Tên</th>
+            <th>Hoàn Thành</th>
+            <th>Vắng Mặt</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody id="attendanceBody">
+    </tbody>
+</table>
+
+
+<h2>Quản Lý Liên Kết</h2>
+
+<button onclick="addLink()">Thêm Liên Kết</button>
+
+<table id="linkTable">
+    <thead>
+        <tr>
+            <th>Liên Kết</th>
+            <th>Số Lượt Xem</th>
+            <th>Ước Lượng Lượt Xem Mỗi Ngày</th>
+            <th>Tiền (đ)</th>
+            <th>Hành Động</th>
+            <th>Chỉnh Sửa</th>
+        </tr>
+    </thead>
+    <tbody id="linkBody">
+    </tbody>
+</table>
+
+<div id="g_id_onload"
+    data-client_id="YOUR_CLIENT_ID"
+    data-context="signin"
+    data-callback="handleCredentialResponse">
+</div>
+
+<h2>Quản Lý Ghi Chú</h2>
+<form id="noteForm">
+    <label for="noteTitle">Tiêu Đề:</label>
+    <input type="text" id="noteTitle" name="noteTitle" required>
+    <label for="noteContent">Nội Dung:</label>
+    <textarea id="noteContent" name="noteContent" rows="4" cols="50" required></textarea>
+    <button type="button" onclick="addNote()" class="add-note">Thêm Ghi Chú</button>
+</form>
+
+<table id="noteTable">
+    <thead>
+        <tr>
+            <th>Tiêu Đề</th>
+            <th>Nội Dung</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody id="noteBody">
+    </tbody>
+</table>
+
+<script>
+function handleCredentialResponse(response) {
+    const responsePayload = decodeJwtResponse(response.credential);
+
+    localStorage.setItem('googleUser', JSON.stringify(responsePayload));
+}
+
+function decodeJwtResponse(token) {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadAttendanceData();
+    loadLinkData();
+    loadDate();
+});
+
+function toggleStatus(button) {
+    let row = button.parentElement.parentElement;
+    if (button.textContent === 'chưa hoàn thành') {
+        button.textContent = 'hoàn thành';
+        button.classList.remove('not-completed');
+        button.classList.add('completed');
+    } else {
+        button.textContent = 'chưa hoàn thành';
+        button.classList.remove('completed');
+        button.classList.add('not-completed');
+    }
+    saveAttendanceData();
+}
+
+function addMember() {
+    let group = prompt("Nhập tên nhóm:");
+    let name = prompt("Nhập tên thành viên:");
+    if (group && name) {
+        let table = document.getElementById("attendanceBody");
+        let newRow = document.createElement("tr");
+        newRow.classList.add('not-completed');
+        
+        let cell1 = document.createElement("td");
+        let cell2 = document.createElement("td");
+        let cell3 = document.createElement("td");
+        let cell4 = document.createElement("td");
+        let cell5 = document.createElement("td");
+        
+        cell1.textContent = group;
+        cell2.textContent = name;
+        cell3.innerHTML = '<button class="status-button not-completed" onclick="toggleStatus(this)">chưa hoàn thành</button>';
+        cell4.innerHTML = '<span class="absence-cell"></span>';
+        cell5.innerHTML = '<div class="centered-actions"><button class="action-button absent" onclick="markAbsent(this)">Vắng Mặt</button> <button class="action-button clear" onclick="clearAbsences(this)">Thu Dấu X</button> <button class="action-button edit" onclick="editMember(this)">Sửa</button> <button class="action-button delete" onclick="deleteMember(this)">Xóa</button></div>';
+        
+        newRow.appendChild(cell1);
+        newRow.appendChild(cell2);
+        newRow.appendChild(cell3);
+        newRow.appendChild(cell4);
+        newRow.appendChild(cell5);
+        
+        let rows = Array.from(table.getElementsByTagName("tr"));
+        let inserted = false;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].getElementsByTagName("td")[0].textContent === group) {
+                table.insertBefore(newRow, rows[i + 1]);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) {
+            table.appendChild(newRow);
+        }
+        
+        saveAttendanceData();
+    }
+}
+
+function editMember(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    let group = prompt("Nhập tên nhóm mới:", row.cells[0].textContent);
+    let name = prompt("Nhập tên thành viên mới:", row.cells[1].textContent);
+    if (group && name) {
+        row.cells[0].textContent = group;
+        row.cells[1].textContent = name;
+        saveAttendanceData();
+    }
+}
+
+function deleteMember(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    row.remove();
+    saveAttendanceData();
+}
+
+function changeDate() {
+    let newDate = prompt("Nhập ngày mới (dd/mm):");
+    if (newDate) {
+        document.getElementById("attendanceDate").textContent = newDate;
+        localStorage.setItem("attendanceDate", newDate);
+    }
+}
+
+function addLink() {
+    let link = prompt("Nhập liên kết:");
+    let views = prompt("Nhập số lượt xem:");
+    if (link && views) {
+        let table = document.getElementById("linkBody");
+        let newRow = table.insertRow();
+        let cell1 = newRow.insertCell(0);
+        let cell2 = newRow.insertCell(1);
+        let cell3 = newRow.insertCell(2);
+        let cell4 = newRow.insertCell(3);
+        let cell5 = newRow.insertCell(4);
+        let cell6 = newRow.insertCell(5);
+        cell1.innerHTML = '<a href="' + link + '" target="_blank" onclick="incrementView(event, this)">' + link + '</a>';
+        cell2.textContent = views;
+        cell3.textContent = calculateDailyViews(link, views);
+        cell4.textContent = calculateMoney(link, views);
+        cell5.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editLink(this)">Sửa</button> <button class="action-button delete" onclick="deleteLink(this)">Xóa</button></div>';
+        cell6.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editDailyViews(this)">Chỉnh Sửa Lượt Xem Mỗi Ngày</button> <button class="action-button delete" onclick="deleteDailyViews(this)">Xóa Ước Lượng</button></div>';
+        saveLinkData();
+    }
+}
+
+function editLink(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    let link = prompt("Nhập liên kết mới:", row.cells[0].getElementsByTagName("a")[0].href);
+    let views = prompt("Nhập số lượt xem mới:", row.cells[1].textContent);
+    if (link && views) {
+        row.cells[0].innerHTML = '<a href="' + link + '" target="_blank" onclick="incrementView(event, this)">' + link + '</a>';
+        row.cells[1].textContent = views;
+        row.cells[3].textContent = calculateMoney(link, views);
+        saveLinkData();
+    }
+}
+
+function editDailyViews(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    let currentDailyViews = parseInt(row.cells[2].textContent) || 0;
+    let additionalViews = parseInt(prompt("Nhập số lượt xem bổ sung:", 0)) || 0;
+    if (!isNaN(additionalViews)) {
+        let newDailyViews = currentDailyViews + additionalViews;
+        row.cells[2].textContent = newDailyViews;
+        saveLinkData();
+    }
+}
+
+function deleteDailyViews(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    row.cells[2].textContent = 0;
+    saveLinkData();
+}
+
+function deleteLink(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    row.remove();
+    saveLinkData();
+}
+
+function calculateMoney(link, views) {
+    let rate = 500;
+    let baseAmount = 77700; // Số tiền ứng với 130 lượt xem ban đầu
+
+    if (link.includes("yeumoney.com")) {
+        if (views <= 141) {
+            money = 98300; // 98700 cho 141 lượt xem
+        } else if (views > 141) {
+            money = 98300 + (views - 141) * rate;
+        }
+    } else if (link.includes("8link.io")) {
+        if (views <= 130) {
+            money = baseAmount; // 77700 cho 130 lượt xem
+        } else if (views > 130) {
+            money = baseAmount + (views - 130) * rate;
+        }
+    } else {
+        money = views * rate;
+    }
+
+    return formatMoney(money);
+}
+
+function formatMoney(amount) {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function calculateDailyViews(link, views) {
+    let currentDate = new Date();
+    let lastUpdateDate = new Date(localStorage.getItem(link + "_lastUpdate") || currentDate);
+    let daysElapsed = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24)) || 1;
+    let dailyViews = Math.floor(views / daysElapsed);
+    localStorage.setItem(link + "_lastUpdate", currentDate);
+    return isNaN(dailyViews) ? 0 : dailyViews;
+}
+
+function saveAttendanceData() {
+    let table = document.getElementById("attendanceBody");
+    let rows = table.getElementsByTagName("tr");
+    let data = [];
+    for (let i = 0; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let group = cells[0].textContent;
+        let name = cells[1].textContent;
+        let status = cells[2].getElementsByTagName("button")[0].textContent;
+        let absences = cells[3].textContent;
+        data.push({ group, name, status, absences });
+    }
+    localStorage.setItem("attendanceData", JSON.stringify(data));
+}
+
+function loadAttendanceData() {
+    let data = JSON.parse(localStorage.getItem("attendanceData"));
+    if (data) {
+        let table = document.getElementById("attendanceBody");
+        for (let i = 0; i < data.length; i++) {
+            let newRow = table.insertRow();
+            newRow.classList.add(data[i].status === "hoàn thành" ? "completed" : "not-completed");
+            let cell1 = newRow.insertCell(0);
+            let cell2 = newRow.insertCell(1);
+            let cell3 = newRow.insertCell(2);
+            let cell4 = newRow.insertCell(3);
+            let cell5 = newRow.insertCell(4);
+            cell1.textContent = data[i].group;
+            cell2.textContent = data[i].name;
+            cell3.innerHTML = '<button class="status-button ' + (data[i].status === "hoàn thành" ? "completed" : "not-completed") + '" onclick="toggleStatus(this)">' + data[i].status + '</button>';
+            cell4.innerHTML = '<span class="absence-cell">' + data[i].absences + '</span>';
+            cell5.innerHTML = '<div class="centered-actions"><button class="action-button absent" onclick="markAbsent(this)">Vắng Mặt</button> <button class="action-button clear" onclick="clearAbsences(this)">Thu Dấu X</button> <button class="action-button edit" onclick="editMember(this)">Sửa</button> <button class="action-button delete" onclick="deleteMember(this)">Xóa</button></div>';
+        }
+    } else {
+        addInitialData();
+    }
+}
+
+function addInitialData() {
+    const initialData = [
+        { group: "Nhóm 1", name: "Lê Văn Khang", status: "hoàn thành", absences: "" },
+        { group: "Nhóm 1", name: "Trần Văn Hùng", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 1", name: "Huy Nguyễn", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 1", name: "Tiến Dũng", status: "hoàn thành", absences: "" },
+        { group: "Nhóm 2", name: "Hà Đức Trọng", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 2", name: "Minh Hiếu", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 2", name: "Minh Hieu", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 2", name: "Ng Khoi", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 3", name: "Lê Quang Cường", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 3", name: "Ngô Chí Hiếu", status: "hoàn thành", absences: "" },
+        { group: "Nhóm 3", name: "Hiền Hà", status: "chưa hoàn thành", absences: "" },
+        { group: "Nhóm 3", name: "Nam Nguyen", status: "chưa hoàn thành", absences: "" }
+    ];
+
+    let table = document.getElementById("attendanceBody");
+    for (let i = 0; i < initialData.length; i++) {
+        let newRow = table.insertRow();
+        newRow.classList.add(initialData[i].status === "hoàn thành" ? "completed" : "not-completed");
+        let cell1 = newRow.insertCell(0);
+        let cell2 = newRow.insertCell(1);
+        let cell3 = newRow.insertCell(2);
+        let cell4 = newRow.insertCell(3);
+        let cell5 = newRow.insertCell(4);
+        cell1.textContent = initialData[i].group;
+        cell2.textContent = initialData[i].name;
+        cell3.innerHTML = '<button class="status-button ' + (initialData[i].status === "hoàn thành" ? "completed" : "not-completed") + '" onclick="toggleStatus(this)">' + initialData[i].status + '</button>';
+        cell4.innerHTML = '<span class="absence-cell">' + initialData[i].absences + '</span>';
+        cell5.innerHTML = '<div class="centered-actions"><button class="action-button absent" onclick="markAbsent(this)">Vắng Mặt</button> <button class="action-button clear" onclick="clearAbsences(this)">Thu Dấu X</button> <button class="action-button edit" onclick="editMember(this)">Sửa</button> <button class="action-button delete" onclick="deleteMember(this)">Xóa</button></div>';
+    }
+    saveAttendanceData();
+}
+
+function markAbsent(button) {
+    let cell = button.parentElement.parentElement.previousElementSibling;
+    cell.textContent += 'X';
+    saveAttendanceData();
+}
+
+function clearAbsences(button) {
+    let cell = button.parentElement.parentElement.previousElementSibling;
+    cell.textContent = '';
+    saveAttendanceData();
+}
+
+function saveLinkData() {
+    let table = document.getElementById("linkBody");
+    let rows = table.getElementsByTagName("tr");
+    let data = [];
+    for (let i = 0; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let link = cells[0].getElementsByTagName("a")[0].href;
+        let views = cells[1].textContent;
+        let dailyViews = cells[2].textContent;
+        data.push({ link, views, dailyViews });
+    }
+    localStorage.setItem("linkData", JSON.stringify(data));
+}
+
+function loadLinkData() {
+    let data = JSON.parse(localStorage.getItem("linkData"));
+    if (data) {
+        let table = document.getElementById("linkBody");
+        for (let i = 0; i < data.length; i++) {
+            let newRow = table.insertRow();
+            let cell1 = newRow.insertCell(0);
+            let cell2 = newRow.insertCell(1);
+            let cell3 = newRow.insertCell(2);
+            let cell4 = newRow.insertCell(3);
+            let cell5 = newRow.insertCell(4);
+            let cell6 = newRow.insertCell(5);
+            cell1.innerHTML = '<a href="' + data[i].link + '" target="_blank" onclick="incrementView(event, this)">' + data[i].link + '</a>';
+            cell2.textContent = data[i].views;
+            cell3.textContent = data[i].dailyViews;
+            cell4.textContent = calculateMoney(data[i].link, data[i].views);
+            cell5.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editLink(this)">Sửa</button> <button class="action-button delete" onclick="deleteLink(this)">Xóa</button></div>';
+            cell6.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editDailyViews(this)">Chỉnh Sửa Lượt Xem Mỗi Ngày</button> <button class="action-button delete" onclick="deleteDailyViews(this)">Xóa Ước Lượng</button></div>';
+        }
+    } else {
+        addInitialLinkData();
+    }
+}
+
+function addInitialLinkData() {
+    const initialLinkData = [
+        { link: "https://yeumoney.com/XW7p24", views: "87", dailyViews: calculateDailyViews("https://yeumoney.com/XW7p24", 87) },
+        { link: "https://8link.io/j43B3h80J", views: "61", dailyViews: calculateDailyViews("https://8link.io/j43B3h80J", 61) }
+    ];
+
+    let table = document.getElementById("linkBody");
+    for (let i = 0; i < initialLinkData.length; i++) {
+        let newRow = table.insertRow();
+        let cell1 = newRow.insertCell(0);
+        let cell2 = newRow.insertCell(1);
+        let cell3 = newRow.insertCell(2);
+        let cell4 = newRow.insertCell(3);
+        let cell5 = newRow.insertCell(4);
+        let cell6 = newRow.insertCell(5);
+        cell1.innerHTML = '<a href="' + initialLinkData[i].link + '" target="_blank" onclick="incrementView(event, this)">' + initialLinkData[i].link + '</a>';
+        cell2.textContent = initialLinkData[i].views;
+        cell3.textContent = initialLinkData[i].dailyViews;
+        cell4.textContent = calculateMoney(initialLinkData[i].link, initialLinkData[i].views);
+        cell5.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editLink(this)">Sửa</button> <button class="action-button delete" onclick="deleteLink(this)">Xóa</button></div>';
+        cell6.innerHTML = '<div class="centered-actions"><button class="action-button edit" onclick="editDailyViews(this)">Chỉnh Sửa Lượt Xem Mỗi Ngày</button> <button class="action-button delete" onclick="deleteDailyViews(this)">Xóa Ước Lượng</button></div>';
+    }
+    saveLinkData();
+}
+
+function loadDate() {
+    let date = localStorage.getItem("attendanceDate");
+    if (date) {
+        document.getElementById("attendanceDate").textContent = date;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadNotes();
+});
+
+function addNote() {
+    let title = document.getElementById("noteTitle").value;
+    let content = document.getElementById("noteContent").value;
+
+    if (title && content) {
+        let table = document.getElementById("noteBody");
+        let newRow = table.insertRow();
+        let cell1 = newRow.insertCell(0);
+        let cell2 = newRow.insertCell(1);
+        let cell3 = newRow.insertCell(2);
+        cell1.textContent = title;
+        cell2.textContent = content;
+        cell3.innerHTML = '<div class="centered-actions"><button onclick="editNote(this)">Sửa</button> <button onclick="deleteNote(this)">Xóa</button></div>';
+        saveNotes();
+        document.getElementById("noteForm").reset();
+    }
+}
+
+function editNote(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    let title = prompt("Nhập tiêu đề mới:", row.cells[0].textContent);
+    let content = prompt("Nhập nội dung mới:", row.cells[1].textContent);
+    if (title && content) {
+        row.cells[0].textContent = title;
+        row.cells[1].textContent = content;
+        saveNotes();
+    }
+}
+
+function deleteNote(button) {
+    let row = button.parentElement.parentElement.parentElement;
+    row.remove();
+    saveNotes();
+}
+
+function saveNotes() {
+    let table = document.getElementById("noteBody");
+    let rows = table.getElementsByTagName("tr");
+    let data = [];
+    for (let i = 0; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let title = cells[0].textContent;
+        let content = cells[1].textContent;
+        data.push({ title, content });
+    }
+    localStorage.setItem("noteData", JSON.stringify(data));
+}
+
+function loadNotes() {
+    let data = JSON.parse(localStorage.getItem("noteData"));
+    if (data) {
+        let table = document.getElementById("noteBody");
+        for (let i = 0; i < data.length; i++) {
+            let newRow = table.insertRow();
+            let cell1 = newRow.insertCell(0);
+            let cell2 = newRow.insertCell(1);
+            let cell3 = newRow.insertCell(2);
+            cell1.textContent = data[i].title;
+            cell2.textContent = data[i].content;
+            cell3.innerHTML = '<div class="centered-actions"><button onclick="editNote(this)">Sửa</button> <button onclick="deleteNote(this)">Xóa</button></div>';
+        }
+    }
+}
+</script>
+
+</body>
+</html>
